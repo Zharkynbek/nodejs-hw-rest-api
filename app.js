@@ -1,19 +1,19 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
-const { DB_HOST } = require("./config");
-const mongoose = require("mongoose");
+// const { DB_HOST } = require("./config");
+// const mongoose = require("mongoose");
 
-mongoose
-  .connect(DB_HOST, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("everything is okay");
-  })
-  .catch((error) => console.log(error));
+// mongoose
+//   .connect(DB_HOST, {
+//     useNewUrlParser: true,
+//     useCreateIndex: true,
+//     useUnifiedTopology: true,
+//   })
+//   .then(() => {
+//     console.log("everything is okay");
+//   })
+//   .catch((error) => console.log(error));
 
 const contactsRouter = require("./routes/api/contacts");
 
