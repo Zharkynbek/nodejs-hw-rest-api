@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const ctrl = require("../../controllers/contacts");
+const ctrl = require("../../../controllers/contacts");
+const guard = require("../../../helpers/guard");
+
 const {
   validationCreateContact,
   validationUpdateContact,
   validateMongoId,
 } = require("./validation");
 
-router.get("/", ctrl.listContacts);
+router.get("/", guard, ctrl.listContacts);
 
 router.get("/:contactId", validateMongoId, ctrl.getContactById);
 

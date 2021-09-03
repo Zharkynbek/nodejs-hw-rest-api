@@ -1,19 +1,6 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
-// const { DB_HOST } = require("./config");
-// const mongoose = require("mongoose");
-
-// mongoose
-//   .connect(DB_HOST, {
-//     useNewUrlParser: true,
-//     useCreateIndex: true,
-//     useUnifiedTopology: true,
-//   })
-//   .then(() => {
-//     console.log("everything is okay");
-//   })
-//   .catch((error) => console.log(error));
 
 const contactsRouter = require("./routes/api/contacts");
 
@@ -25,6 +12,7 @@ app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/users", require("./routes/api/users"));
 app.use("/api/contacts", contactsRouter);
 
 app.use((req, res) => {
