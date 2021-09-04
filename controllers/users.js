@@ -51,16 +51,12 @@ const login = async (req, res, next) => {
 };
 
 const logout = () => {
-  //   try {
-  //     const contacts = await Users.findById();
-  //     return res.json({
-  //       status: "success",
-  //       code: HttpCode.CREATED,
-  //       data: { contacts },
-  //     });
-  //   } catch (error) {
-  //     next(error);
-  //   }
+  try {
+    await Users.updateToken(id, null);
+    return res.status(HttpCode.NO_CONTENT).json({});
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = { register, login, logout };
