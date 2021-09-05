@@ -1,8 +1,8 @@
 const Users = require("../repositories/users");
-const { HttpCode } = require("../../helpers");
+const { HttpCode } = require("../helpers/constans");
 const jwt = require("jsonwebtoken");
-const SECRET_KEY = process.env.SECRET_KEY;
 require("dotenv").config();
+const SECRET_KEY = process.env.SECRET_KEY;
 
 const register = async (req, res, next) => {
   try {
@@ -50,10 +50,11 @@ const login = async (req, res, next) => {
   }
 };
 
-const logout = () => {
+const logout = async (req, res, next) => {
   try {
+    const id = req.user.id;
     await Users.updateToken(id, null);
-    return res.status(HttpCode.NO_CONTENT).json({});
+    return res.status(NO_CONTENT).json({});
   } catch (error) {
     next(error);
   }

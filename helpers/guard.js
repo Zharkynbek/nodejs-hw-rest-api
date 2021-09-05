@@ -1,6 +1,6 @@
 const passport = require("passport");
 require("../config/passport");
-const { HttpCode } = require("./constants");
+const { HttpCode } = require("./constans");
 
 const guard = (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user) => {
@@ -14,7 +14,7 @@ const guard = (req, res, next) => {
       return res.status(HttpCode.UNAUTHORIZED).json({
         status: "error",
         code: HttpCode.UNAUTHORIZED,
-        message: "Invalid credentionls",
+        message: "Invalid credentials",
       });
     }
     req.user = user;

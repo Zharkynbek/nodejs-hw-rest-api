@@ -7,7 +7,19 @@ const listContacts = async (userId, query) => {
   // });
   const { sortBy, sortByDesc, filter, limit = 5, offset = 0 } = query;
   const optionsSearch = { owner: userId };
-  const results = await Contact.paginate(optionsSearch, { limit, offset });
+  const results = Contact.paginate(optionsSearch, {
+    limit,
+    page,
+    sort: {
+      ...(sortBy ? { [`${sortBy}`]: 1 } : {}),
+      ...(sortByDesc ? { [`${sortByDesc}`]: -1 } : {}),
+    },
+    select: filter ? filter.split("|").join(" ") : "",
+    populate: {
+      path: "owner",
+      select: "email subscription -_id",
+    },
+  });
   return results;
 };
 
