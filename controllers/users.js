@@ -63,13 +63,61 @@ const logout = async (req, res, next) => {
   }
 };
 
+const current = async (req, res, next) => {
+  try {
+    const id = req.user.id;
+    const user = await Users.findById(id);
+    const { email, subscription } = user;
+
+    return res.status(HttpCode.OK).json({
+      status: `${HttpCode.OK} OK`,
+      code: HttpCode.OK,
+      data: {
+        user: {
+          email,
+          subscription,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const subscription = async (req, res, next) => {
+  try {
+    const id = req.user.id;
+    const user = await Users.updateSubscription(id, req.body);
+    const { email, subscription } = user;
+
+    return res.status(HttpCode.OK).json({
+      status: `${HttpCode.OK} success`,
+      code: HttpCode.OK,
+      data: {
+        user: {
+          email,
+          subscription,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const avatars = async (req, res, next) => {
   try {
     const id = req.user.id;
     const uploads = new UploadAvatarService(process.env.AVATAR_OF_USERS);
     const avatarUrl = await uploads.saveAvatar({ idUser: id, file: req.file });
     try {
-      await fs.unlink(path.join(process.env.AVATAR_OF_USERS, req.user.avatar));
+      await fs.unlink(
+        path.join(
+          process.env.UPLOAD_DIR,
+          process.env.AVATAR_OF_USERS,
+          req.user.avatar
+        )
+      );
     } catch (e) {
       console.log(e.message);
     }
@@ -78,11 +126,11 @@ const avatars = async (req, res, next) => {
     res.json({
       status: "success",
       code: 200,
-      data: avatarUrl,
+      data: { avatarUrl },
     });
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { register, login, logout, avatars };
+module.exports = { register, login, logout, current, subscription, avatars };

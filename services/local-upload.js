@@ -3,6 +3,8 @@ const createFolderIsNotExist = require("../helpers/create-folder");
 const path = require("path");
 const fs = require("fs/promises");
 
+require("dotenv").config();
+
 class UploadAvatarService {
   constructor(folderAvatars) {
     this.folderAvatars = folderAvatars;
