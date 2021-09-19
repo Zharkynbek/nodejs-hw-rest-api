@@ -3,6 +3,8 @@ const { HttpCode } = require("../helpers/constans");
 const jwt = require("jsonwebtoken");
 const fs = require("fs/promises");
 const path = require("path");
+const EmailService = require("../services/email");
+const { CreateSenderSendGrid } = require("../services/email-sender");
 require("dotenv").config();
 const UploadAvatarService = require("../services/local-upload");
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -21,6 +23,17 @@ const register = async (req, res, next) => {
     const { id, email, subscription, avatar, verifyToken } = await Users.create(
       req.body
     );
+
+     try {
+       const emailService = new EmailService(
+         process.env.NODE_ENV,
+         new CreateSenderSendGrid()
+       );
+
+       await emailService.sendVerifyEmail(verifyToken, email);
+     } catch (error) {
+       console.log(error.message);
+     }
     return res.status(HttpCode.CREATED).json({
       status: "success",
       code: HttpCode.CREATED,
@@ -135,4 +148,78 @@ const avatars = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, logout, current, subscription, avatars };
+const verify = async (req, res, next) => {
+  try {
+    const user = await Users.findByVerifyToken(req.params.verificationToken);
+    if (user) {
+      await Users.updateTokenVerify(user.id, true, null);
+
+      return res.json({
+        status: "success",
+        code: HttpCode.OK,
+        data: {
+          message: "Success",
+        },
+      });
+    }
+
+    return res.status(HttpCode.BAD_REQUEST).json({
+      status: `${HttpCode.BAD_REQUEST} not found`,
+      message: "Verification token isn't valid",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const repeatEmailVerification = async (req, res, next) => {
+  try {
+    const user = await Users.findByEmail(req.body.email);
+
+    if (user) {
+      const { email, verify, verifyToken } = user;
+
+      if (!verify) {
+        const emailService = new EmailService(
+          process.env.NODE_ENV,
+          new CreateSenderSendGrid()
+        );
+
+        await emailService.sendVerifyEmail(verifyToken, email);
+
+        return res.json({
+          status: "success",
+          code: HttpCode.OK,
+          data: {
+            message: "Resubmitted success",
+          },
+        });
+      }
+
+      return res.status(HttpCode.CONFLICT).json({
+        status: "error",
+        code: HttpCode.CONFLICT,
+        message: "Email has been verified",
+      });
+    }
+
+    return res.status(HttpCode.NOT_FOUND).json({
+      status: "error",
+      code: HttpCode.NOT_FOUND,
+      message: "User not found",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  logout,
+  current,
+  subscription,
+  avatars,
+  verify,
+  repeatEmailVerification,
+};
